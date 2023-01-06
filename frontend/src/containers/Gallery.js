@@ -116,14 +116,6 @@ const Gallery = () => {
 
   const { user } = useComic();
 
-  //get data from backend 
-  // const [queryImg, { loading, error, data: imgData, subscribeToMore }] = useLazyQuery(
-  //   IMAGE_QUERY, {
-  //   variables: {
-  //     user: user.name
-  //   }
-  // })
-  // await queryImg()
   const [queryImg, { loading, error, data: imgData, networkStatus }] = useLazyQuery(
     IMAGE_QUERY, {
     variables: { email: user.email },
@@ -134,28 +126,31 @@ const Gallery = () => {
 
   const showImage = async () => {
     await queryImg(user.email)
-    console.log(imgData)
-    console.log(imgData.image.Image.length - 1)
+    console.log(user.email)
+    // console.log(imgData)
+    let reloadlink ='wrong.png'
+    // console.log(typeof(imgData)!= 'undefined')
 
-    const reloadlink = imgData.image.Image[imgData.image.Image.length - 1].link ?? []
+    if(typeof(imgData)!= 'undefined'){
+      reloadlink = imgData.image.Image[imgData.image.Image.length - 1].link
+      console.log(imgData.image.Image.length - 1)
+    }
+    // const reloadlink = imgData.image.Image[imgData.image.Image.length - 1].link
     const canvas_show = document.getElementById('canvas');
     const context_show = canvas_show.getContext('2d')
-
+  
     const image = new Image();
     image.src = reloadlink;
-
+    // console.log(image)
+  
     image.onload = () => {
       context_show.clearRect(0, 0, canvas_show.width, canvas_show.height)
-
+  
       canvas_show.width = image.width;
       canvas_show.height = image.height;
       context_show.drawImage(image, 0, 0, canvas_show.width, canvas_show.height);
     }
   }
-
-  
-  // if (loading) return 'Loading...'
-  // if (error) return 'Error! ${error.message}'
 
   return (
     <>
@@ -173,7 +168,7 @@ const Gallery = () => {
           {loading? <p>'Loading...'</p>
             : error? <p>'Error! ${error.message}'</p>
             :<canvas id='canvas'
-              style={{ backgroundColor: '#fff'}}
+              // style={{ backgroundColor: '#fff'}}
               width='650px'
               height='500px'
             >Canvas_show</canvas>

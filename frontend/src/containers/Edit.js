@@ -280,6 +280,7 @@ const average = (a, b) => (a + b) / 2
 const adjustmentRequired = type => ['line', 'rectangle'].includes(type)
 
 const mergecanvas = () => {
+  console.log('merge')
   //把兩個canvas合併到第三個用來輸出的畫布
   const canvas = document.getElementById('canvas');
   const canvas_fig = document.getElementById('canvas_fig')
@@ -356,7 +357,6 @@ const Edit = () => {
   const [action, setAction] = useState('none');
   const [tool, setTool] = useState('line');
   const [selectedElement, setSelectedElement] = useState(null);
-  const textAreaRef = useRef(null);
   const navigate = useNavigate();
   const { user } = useComic();
 
@@ -389,16 +389,6 @@ const Edit = () => {
       document.removeEventListener('keydown', undoRedoFunction)
     }
   }, [undo, redo])
-
-  useEffect(() => { //doesn't work!
-    const textArea = textAreaRef.current;
-    if (action === "writing") {
-
-      textArea.focus();
-      textArea.value = selectedElement.text;
-    }
-  }, [action, selectedElement]);
-
 
 
   const updateElement = (id, x1, y1, x2, y2, type, options) => {
@@ -582,14 +572,15 @@ const Edit = () => {
   const [singleUpload] = useMutation(SINGLE_UPLOAD_MUTATION);
 
   const saveImage = async () => {
+    console.log('save')
     // console.log('filedata: ', fileData);  // ok
     const imglink = mergecanvas()
     const fileLink = imglink.getAttribute('href')
-    // console.log('filelink: ', fileLink)
+    console.log(fileData)
+    // console.log(fileLink)
     // console.log('user.email: ', user.email);  // ok
     await singleUpload({ variables: { link: fileLink, file: fileData, userEmail: user.email } });
   }
-
 
   return (<>
     <Title />
