@@ -570,6 +570,9 @@ const Edit = () => {
     await saveImage();
     navigate('/gallery')
   }
+  const gogallery = () => {
+    navigate('/gallery')
+  }
 
   const onChangeFile = e => {
 
@@ -621,7 +624,7 @@ const Edit = () => {
           {/* <button className = 'function button'onClick={convert}>Convert</button> */}
           <button className='function button' onClick={download}>Download</button>
           <button className='function button' onClick={finishedit}>Finish</button>
-
+          <button className='function button' onClick={gogallery}>Gallery</button>
 
 
         </FunctionWrapper>
@@ -682,49 +685,6 @@ const Edit = () => {
 
             <img src='icons/pencil.svg' width='20px' />
           </label>
-
-
-
-
-          {/* <input
-            type='radio'
-            id='selection'
-            checked={tool === 'selection'}
-            onChange={() => setTool('selection')}
-          />
-          <label htmlFor="selection">Selection</label>
-
-          <input
-            type='radio'
-            id='line'
-            checked={tool === 'line'}
-            onChange={() => setTool('line')}
-          />
-          <label htmlFor="line">Line</label>
-
-          <input
-            type='radio'
-            id='rectangle'
-            checked={tool === 'rectangle'}
-            onChange={() => setTool('rectangle')}
-          />
-          <label htmlFor="rectangle">Rectangle</label>
-
-          <input
-            type='radio'
-            id='circle'
-            checked={tool === 'circle'}
-            onChange={() => setTool('circle')}
-          />
-          <label htmlFor="circle">Circle</label>
-
-          <input
-            type='radio'
-            id='pencil'
-            checked={tool === 'pencil'}
-            onChange={() => setTool('pencil')}
-          />
-          <label htmlFor="pencil">Pencil</label> */}
 
 
         </ToolWrapper>

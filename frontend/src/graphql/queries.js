@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client';
 
 export const IMAGE_QUERY = gql`
-  query image($user: String){
-    image(user: $user){
+  query image($email: String){
+    image(email: $email){
       id
       name
       email

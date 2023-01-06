@@ -4,7 +4,7 @@ import mongoose, { Schema } from "mongoose";
 const ImageSchema = new Schema({
   filename: String,
   link: String,
-  img: String //改? 要讓yoga吃到要用string
+  img: String 
 });
 
 const ImageModel =

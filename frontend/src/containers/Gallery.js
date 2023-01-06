@@ -1,9 +1,10 @@
 import styled from 'styled-components';
 import Title from '../components/Title';
-import { useLazyQuery } from '@apollo/client';
+import { useLazyQuery, useQuery, NetworkStatus } from '@apollo/client';
 import { useNavigate } from 'react-router-dom';
 import { useComic } from './hooks/useComic';
 import { IMAGE_QUERY } from '../graphql/queries'
+import { useEffect } from 'react';
 
 /* The grid: Four equal columns that floats next to each other */
 const Column = styled.div`
@@ -57,27 +58,39 @@ const Closebtn = styled.div`
 
 `
 
-const CanvasWrapper = styled.div`
+const Wrapper = styled.div`
+  // background-color: #444;
+  // width: 60%;
   display: flex;
-  align-items: center;
+  flex-wrap: wrap;
+  align-items: center; 
   justify-content: center;
-  width: 100%
-  position: relative
-  margin-top: 20px
-  
-  canvas{
-    position: absolute
+  flex-direction: column;
+
+  h1{
+    margin: 5px;
   }
 `
 
+
+const CanvasWrapper = styled.div`
+  display: flex;
+
+`
+
 const ButtonWrapper = styled.div`
+  width: 100%;
   display: flex;
   align-item: center;
   justify-content: center;
   align-items: center;
+  margin-bottom: 10px;
 
-  height: 50px;
-  width: 50%;
+  button{
+    margin-left: 10px;
+    margin-right: 10px;
+  }
+
 `
 
 const handleClickImg = (imgs) => {
@@ -97,107 +110,108 @@ const handleClickImg = (imgs) => {
 
 const Gallery = () => {
   const navigate = useNavigate();
-  const { user } = useComic();
-
-  const [queryImg, { loading, error, data: imgData, subscribeToMore }] = useLazyQuery(
-    IMAGE_QUERY,{
-      variables: {
-        user: user.name
-      }
-    })
-
-  const reload = async () => {
-    //get data from backend 
-    console.log(user)
-    await queryImg()
-    if(error) console.log(error)
-    console.log(imgData.image.Image)
-    console.log(imgData.image.Image.length - 1)
-    const reloadlink = imgData.image.Image[imgData.image.Image.length - 1].link
-    // console.log(reloadlink)
-    const canvas_show = document.getElementById('canvas');
-   
-    const context_show = canvas_show.getContext('2d')
-
-
-    const image = new Image();
-    image.src = reloadlink;
-    
-    image.onload = () => {
-      context_show.clearRect(0, 0, canvas_show.width, canvas_show.height)
-      
-      canvas_show.width = image.width;
-      canvas_show.height =  image.height;
-      context_show.drawImage(image, 0, 0, canvas_show.width, canvas_show.height);
-      // console.log(canvas_show.width)
-      // console.log(canvas_show.height)
-    }
-  }
-
   const goCreate = () => {
     navigate('/edit')
   }
 
+  const { user } = useComic();
+
+  //get data from backend 
+  // const [queryImg, { loading, error, data: imgData, subscribeToMore }] = useLazyQuery(
+  //   IMAGE_QUERY, {
+  //   variables: {
+  //     user: user.name
+  //   }
+  // })
+  // await queryImg()
+  const [queryImg, { loading, error, data: imgData, networkStatus }] = useLazyQuery(
+    IMAGE_QUERY, {
+    variables: { email: user.email },
+    notifyOnNetworkStatusChange: true,
+    fetchPolicy: 'cache-and-network'
+  })
+
+
+  const showImage = async () => {
+    await queryImg(user.email)
+    console.log(imgData)
+    console.log(imgData.image.Image.length - 1)
+
+    const reloadlink = imgData.image.Image[imgData.image.Image.length - 1].link ?? []
+    const canvas_show = document.getElementById('canvas');
+    const context_show = canvas_show.getContext('2d')
+
+    const image = new Image();
+    image.src = reloadlink;
+
+    image.onload = () => {
+      context_show.clearRect(0, 0, canvas_show.width, canvas_show.height)
+
+      canvas_show.width = image.width;
+      canvas_show.height = image.height;
+      context_show.drawImage(image, 0, 0, canvas_show.width, canvas_show.height);
+    }
+  }
+
+  
+  // if (loading) return 'Loading...'
+  // if (error) return 'Error! ${error.message}'
+
   return (
     <>
       <Title />
-      <h1>My Gallery</h1>
+      <Wrapper>
+        <h1>My Gallery</h1>
 
-      <ButtonWrapper>
+        <ButtonWrapper>
 
-        <button className = 'gallery button' onClick={reload}>Reload</button>
-        <button className = 'gallery button' onClick={goCreate}>Back to Create</button>
+          <button className='gallery button' onClick={showImage}>Reload Picture</button>
+          <button className='gallery button' onClick={goCreate}>Back to Create</button>
 
-      </ButtonWrapper>
-      <CanvasWrapper>
-        <canvas id='canvas'
-          width='500px'
-          height='500px'
-          // style={{ backgroundColor: '#fff' }}
-        >Canvas_show</canvas>
+        </ButtonWrapper>
+        <CanvasWrapper>
+          {loading? <p>'Loading...'</p>
+            : error? <p>'Error! ${error.message}'</p>
+            :<canvas id='canvas'
+              style={{ backgroundColor: '#fff'}}
+              width='650px'
+              height='500px'
+            >Canvas_show</canvas>
+          
+          }
 
-        {/* <canvas id='canvas_fig'
-          width='500px'
-          height='500px'
-          style={{ backgroundColor: '#fff' }}
+        </CanvasWrapper>
 
-        >Canvas_fig</canvas>
-
-        <canvas id='canvas'
-          width='500px'
-          height='500px'
-          style={{ position: 'absolute' }}
-
-        >Canvas3</canvas> */}
-      </CanvasWrapper>
-
-      <Row>
-        {/* <Column>
-          <img src="img_nature.jpg" alt="Nature" onClick={handleClickImg}/>
-        </Column>
-        <Column>
-          <img src="img_snow.jpg" alt="Snow" onClick={handleClickImg} />
-        </Column>
-        <Column>
-          <img src="img_mountains.jpg" alt="Mountains" onClick={handleClickImg} />
-        </Column>
-        <Column>
-          <img src="img_lights.jpg" alt="Lights" onClick={handleClickImg} />
-        </Column> */}
-      </Row>
+        <Row>
+          {/* <Column>
+            <img src="img_nature.jpg" alt="Nature" onClick={handleClickImg}/>
+          </Column>
+          <Column>
+            <img src="img_snow.jpg" alt="Snow" onClick={handleClickImg} />
+          </Column>
+          <Column>
+            <img src="img_mountains.jpg" alt="Mountains" onClick={handleClickImg} />
+          </Column>
+          <Column>
+            <img src="img_lights.jpg" alt="Lights" onClick={handleClickImg} />
+          </Column> */}
+        </Row>
 
 
-      <Container>
-        {/* 
-        <span onClick={parentElement.style.display='none'} className="closebtn">&times;</span>
+        <Container>
+          {/* 
+          <span onClick={parentElement.style.display='none'} className="closebtn">&times;</span>
+  
+  
+          <img id="expandedImg" style="width:100%" /> */}
 
+          <Imgtext />
+        </Container>
 
-        <img id="expandedImg" style="width:100%" /> */}
-
-        <Imgtext />
-      </Container>
-
+      </Wrapper>
     </>
   )
+
 }
+
 export default Gallery;

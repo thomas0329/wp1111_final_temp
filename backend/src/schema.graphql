@@ -2,8 +2,8 @@ scalar Upload
 
 type Query {
   _dummy: String
-  user(id: ID, name: String, email: String): User!
-  image(user: String): User
+  user(id: ID, name: String, email: String): User
+  image(name: String, email: String): User
 }
 
 type Mutation {
